@@ -16,7 +16,7 @@ export default async function Home() {
         <div key={post.id} style={{ borderBottom: '1px solid #eee', marginBottom: '20px', paddingBottom: '20px' }}>
           <h2 style={{ fontSize: '1.3rem' }} dangerouslySetInnerHTML={{ __html: post.title.rendered }} />
           <div dangerouslySetInnerHTML={{ __html: post.excerpt.rendered }} />
-          <a href={post.link} target="_blank" style={{ color: 'blue' }}>Read more →</a>
+          <a href={`/posts/${post.slug}`} style={{ color: 'blue' }}>Read more →</a>
         </div>
       ))}
     </main>
