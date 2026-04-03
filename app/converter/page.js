@@ -8,22 +8,26 @@ export default function Converter() {
       <input
         type="text"
         id="wpLink"
-        placeholder="https://news-saga.com/your-article"
+        placeholder="https://news-saga.com/your-article or /archives/12345"
         style={{ width: '100%', padding: '10px', fontSize: '15px', border: '1px solid #ddd', borderRadius: '8px', boxSizing: 'border-box', marginBottom: '12px' }}
       />
 
       <button
-        onclick="convert()"
+        onClick="convert()"
         style={{ width: '100%', padding: '12px', fontSize: '15px', background: '#0070f3', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
       >
         Convert →
       </button>
 
+      <div id="loading" style={{ display: 'none', marginTop: '16px', textAlign: 'center', color: '#666', fontSize: '14px' }}>
+        Looking up article...
+      </div>
+
       <div id="result" style={{ display: 'none', marginTop: '24px', background: '#f5f5f5', borderRadius: '8px', padding: '16px' }}>
         <p style={{ fontSize: '13px', color: '#666', margin: '0 0 6px' }}>Your Vercel link</p>
         <p id="vercelLink" style={{ fontSize: '15px', fontWeight: 'bold', margin: '0 0 12px', wordBreak: 'break-all' }}></p>
         <button
-          onclick="copyLink()"
+          onClick="copyLink()"
           id="copyBtn"
           style={{ width: '100%', padding: '10px', fontSize: '14px', background: 'white', border: '1px solid #ddd', borderRadius: '8px', cursor: 'pointer' }}
         >
@@ -36,12 +40,15 @@ export default function Converter() {
       </div>
 
       <script dangerouslySetInnerHTML={{ __html: `
-        function convert() {
+        async function convert() {
           const input = document.getElementById('wpLink').value.trim();
           const result = document.getElementById('result');
           const error = document.getElementById('error');
+          const loading = document.getElementById('loading');
+
           result.style.display = 'none';
           error.style.display = 'none';
+          loading.style.display = 'none';
 
           if (!input) {
             document.getElementById('errorMsg').innerText = 'Please paste a WordPress article URL first.';
@@ -52,15 +59,32 @@ export default function Converter() {
           try {
             const url = new URL(input);
             const parts = url.pathname.replace(/\\/$/, '').split('/');
-            const slug = parts[parts.length - 1];
-            if (!slug) {
-              document.getElementById('errorMsg').innerText = 'Could not detect the article slug.';
-              error.style.display = 'block';
-              return;
+
+            if (parts.includes('archives')) {
+              const postId = parts[parts.length - 1];
+              loading.style.display = 'block';
+              const res = await fetch('https://news-saga.com/wp-json/wp/v2/posts/' + postId);
+              loading.style.display = 'none';
+              if (!res.ok) {
+                document.getElementById('errorMsg').innerText = 'Could not find this article. Please check the URL.';
+                error.style.display = 'block';
+                return;
+              }
+              const post = await res.json();
+              document.getElementById('vercelLink').innerText = 'https://saga-plum.vercel.app/posts/' + post.slug;
+              result.style.display = 'block';
+            } else {
+              const slug = parts[parts.length - 1];
+              if (!slug) {
+                document.getElementById('errorMsg').innerText = 'Could not detect the article slug.';
+                error.style.display = 'block';
+                return;
+              }
+              document.getElementById('vercelLink').innerText = 'https://saga-plum.vercel.app/posts/' + slug;
+              result.style.display = 'block';
             }
-            document.getElementById('vercelLink').innerText = 'https://saga-plum.vercel.app/posts/' + slug;
-            result.style.display = 'block';
           } catch(e) {
+            loading.style.display = 'none';
             document.getElementById('errorMsg').innerText = 'Invalid URL. Please paste a full URL.';
             error.style.display = 'block';
           }
