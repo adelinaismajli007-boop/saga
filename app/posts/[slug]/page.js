@@ -37,7 +37,7 @@ export default async function Post({ params }) {
 
   return (
     <main style={{ maxWidth: '800px', margin: '0 auto', padding: '20px', fontFamily: 'Arial' }}>
-      <a href="/" style={{ color: '#0070f3', fontSize: '14px' }}>← Back to Home</a>
+      <a href="/" style={{ color: '#0070f3', fontSize: '14px' }}>Back to Home</a>
 
       {image && (
         <img src={image} alt="" style={{ width: '100%', borderRadius: '8px', margin: '20px 0' }} />
@@ -59,7 +59,7 @@ export default async function Post({ params }) {
           target="_blank"
           style={{ color: '#0070f3', fontSize: '15px' }}
         >
-          View original article on News Saga →
+          View original article on News Saga
         </a>
       </div>
     </main>
