@@ -1,5 +1,5 @@
 async function getPost(slug) {
-  const res = await fetch(`https://news-saga.com/wp-json/wp/v2/posts?slug=${slug}`, { next: { revalidate: 86400 } });
+  const res = await fetch(`https://news-saga.com/wp-json/wp/v2/posts?slug=${slug}&_embed`, { next: { revalidate: 86400 } });
   const posts = await res.json();
   return posts[0];
 }
@@ -8,11 +8,19 @@ export async function generateMetadata({ params }) {
   const post = await getPost(params.slug);
   const title = post?.title?.rendered || 'News Saga';
   const excerpt = post?.excerpt?.rendered?.replace(/<[^>]+>/g, '') || '';
-  const image = post?.jetpack_featured_media_url || '';
+  const image = post?._embedded?.['wp:featuredmedia']?.[0]?.source_url || 'https://news-saga.com/wp-content/uploads/logo.png';
+
   return {
     title,
     description: excerpt,
-    openGraph: { title, description: excerpt, images: image ? [image] : [], siteName: 'News Saga', type: 'article' },
+    openGraph: {
+      title,
+      description: excerpt,
+      images: [{ url: image, width: 1200, height: 630 }],
+      url: `https://saga-plum.vercel.app/posts/${params.slug}`,
+      siteName: 'News Saga',
+      type: 'article',
+    },
   };
 }
 
