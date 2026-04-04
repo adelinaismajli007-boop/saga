@@ -19,16 +19,13 @@ export async function generateMetadata({ params }) {
 export default async function Post({ params }) {
   const post = await getPost(params.slug);
   if (!post) return <div style={{padding:'20px'}}>Post not found</div>;
-  const image = post?.jetpack_featured_media_url || '';
   return (
-    <main style={{maxWidth:'800px',margin:'0 auto',padding:'20px',fontFamily:'Arial'}}>
-      <a href="/" style={{color:'#0070f3',fontSize:'14px'}}>Back to Home</a>
-      {image && <img src={image} alt="" style={{width:'100%',borderRadius:'8px',margin:'20px 0'}} />}
-      <h1 style={{fontSize:'2rem',margin:'20px 0 10px'}} dangerouslySetInnerHTML={{__html:post.title.rendered}} />
-      <div style={{fontSize:'16px',lineHeight:'1.7',color:'#333'}} dangerouslySetInnerHTML={{__html:post.content.rendered}} />
-      <div style={{marginTop:'40px',padding:'20px',background:'#f5f5f5',borderRadius:'8px',textAlign:'center'}}>
-        <a href={post.link} target="_blank" style={{color:'#0070f3',fontSize:'15px'}}>View original article on News Saga</a>
-      </div>
+    <main style={{margin:'0',padding:'0',width:'100%',height:'100vh'}}>
+      <iframe
+        src={post.link}
+        style={{width:'100%',height:'100vh',border:'none'}}
+        title={post.title.rendered}
+      />
     </main>
   );
 }
